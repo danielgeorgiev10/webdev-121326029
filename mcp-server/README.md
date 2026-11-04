@@ -26,7 +26,7 @@ Add an `mcp` script to `package.json` (`"mcp": "node mcp-server/server.js"`) so 
 ## Run the self-check
 
 ```bash
-node mcp-server/check.mjs -- <your start command>
+node mcp-server/check.mjs -- cmd.exe /c "npm run --silent mcp"
 # for example
 node mcp-server/check.mjs -- node mcp-server/server.js
 node mcp-server/check.mjs -- python3 mcp-server/server.py
@@ -38,9 +38,31 @@ It prints one line per check. Fix the failures yourself: the agent may explain a
 
 ## How to start it
 <!-- The exact command, so the lecturer can run your server too. -->
+npm run --silent mcp
 
 ## Session transcript
-<!-- Paste one full session: initialize, the reply, tools/list, one good tools/call, one that fails. -->
+node mcp-server/server.js
+
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"me","version":"1.0.0"}}}
+got: {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"me","version":"1.0.0"}}}
+{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-11-25","capabilities":{"tools":{}},"serverInfo":{"name":"lectures","version":"0.1.0"}}}
+
+{"jsonrpc":"2.0","method":"notifications/initialized"}
+got: {"jsonrpc":"2.0","method":"notifications/initialized"}
+
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
+got: {"jsonrpc":"2.0","id":2,"method":"tools/list"}
+{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"find_lecture","description":"Return the title and topics of one course lecture by its number, 1 to 12. Use it when asked what a lecture covers.","inputSchema":{"type":"object","properties":{"number":{"type":"integer","description":"Lecture number, 1 to 12"}},"required":["number"]}},{"name":"list_lectures","description":"List the number and title of every course lecture. Use it when asked what the course covers.","inputSchema":{"type":"object","properties":{}}}]}}
+
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":5}}}
+got: {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":5}}}
+{"jsonrpc":"2.0","id":3,"result":{"content":[{"type":"text","text":"Lecture 5: What the agent built, part 1. Topics: HTTP, REST vs GraphQL, data modeling, ORM, layers"}],"isError":false}}
+
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":99}}}
+got: {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"find_lecture","arguments":{"number":99}}}
+{"jsonrpc":"2.0","id":4,"result":{"content":[{"type":"text","text":"Lecture 99 was not found. Please try another lecture number."}],"isError":true}}
 
 ## The description experiment
 <!-- Three sentences: what you changed in the description, whether the model chose the tool differently, and why you think so. -->
+
+I changed the `find_lecture` tool description to make it more precise by explaining when it should be used and what information it returns. The model did not choose differently - it selected `find_lecture` both before and after the change. I think the original description was already clear enough for the model to recognize that the question required this tool.
